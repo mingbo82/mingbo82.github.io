@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>后台管理</title>
+</head>
+<body>
+  <h1>编辑内容</h1>
+  <form id="editorForm">
+    <label>标题：</label><br>
+    <input type="text" id="titleInput" style="width:400px"><br><br>
+    <label>正文：</label><br>
+    <textarea id="bodyInput" rows="6" style="width:400px"></textarea><br><br>
+    <button type="submit">提交更新</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    const repoOwner = "你的用户名";
+    const repoName = "你的仓库名";
+    const token = "你的 GitHub Fine-Grained Token（仅 Issue 权限）";
+
+    async function loadContent() {
+      const res = await fetch('content.json?t=' + Date.now());
+      const data = await res.json();
+      document.getElementById('titleInput').value = data.title;
+      document.getElementById('bodyInput').value = data.body;
+    }
+
+    document.getElementById('editorForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const title = document.getElementById('titleInput').value;
+      const body = document.getElementById('bodyInput').value;
+      const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/issues`, {
+        method: 'POST',
+        headers: {
+          "Authorization": `token ${token}`,
+          "Accept": "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+          title: "Update content.json",
+          body: `New content:\nTitle: ${title}\nBody: ${body}`
+        })
+      });
+      document.getElementById('status').innerText = res.ok ? "✅ 提交成功" : "❌ 提交失败";
+    });
+
+    loadContent();
+  </script>
+</body>
+</html>

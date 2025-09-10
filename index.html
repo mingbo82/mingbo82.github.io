@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>我的主页</title>
+  <script>
+    async function loadContent() {
+      const res = await fetch('content.json?t=' + Date.now());
+      const data = await res.json();
+      document.getElementById('title').innerText = data.title;
+      document.getElementById('body').innerText = data.body;
+    }
+    window.onload = loadContent;
+  </script>
+</head>
+<body>
+  <h1 id="title">加载中...</h1>
+  <p id="body">请稍候</p>
+  <hr>
+  <a href="admin.html">后台管理</a>
+</body>
+</html>
