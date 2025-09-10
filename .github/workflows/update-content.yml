@@ -1,0 +1,32 @@
+name: Update content.json
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update content.json
+        run: |
+          BODY="${{ github.event.issue.body }}"
+          TITLE=$(echo "$BODY" | grep '^Title:' | sed 's/Title: //')
+          CONTENT=$(echo "$BODY" | grep '^Body:' | sed 's/Body: //')
+          echo "{\"title\":\"$TITLE\",\"body\":\"$CONTENT\"}" > content.json
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add content.json
+          git commit -m "Update content.json via Issue #${{ github.event.issue.number }}"
+          git push
+      - name: Close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            })
